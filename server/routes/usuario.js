@@ -3,9 +3,10 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const _= require('underscore');
 const Usuario = require('../models/usuario');
+const {verificaToken, verificaAdminRole} = require('../middlewares/autenticación');
 const app = express();
 // GET
-app.get('/usuario', (req, res) => {
+app.get('/usuario', verificaToken, (req, res) => {
     let desde = Number(req.query.desde) || 0;
     let limite = Number(req.query.limite) || 5;
     Usuario.find({estado: true}, 'nombre email role estado google img')
@@ -30,7 +31,7 @@ app.get('/usuario', (req, res) => {
 });
 
 // POST
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificaToken, verificaAdminRole], (req, res) => {
     let body = req.body;
 
     let usuario = new Usuario({
@@ -54,7 +55,7 @@ app.post('/usuario', (req, res) => {
     });
 });
 // PUT
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre','email','img','role','estado']);
     Usuario.findByIdAndUpdate(id, body, {new: true, runValidators: true}, (err, usuarioDB) => {
@@ -72,7 +73,7 @@ app.put('/usuario/:id', (req, res) => {
     });
 });
 // DELETE
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', verificaToken, (req, res) => {
     const id = req.params.id;
     // Usuario.findByIdAndRemove(id, (err, delUser) => { esta linea de código es para eliminar un registro de DB y la otra es solos para cambiar el valor al campo estado 
         let cambiaEstado = {
