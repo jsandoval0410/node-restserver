@@ -57,6 +57,7 @@ app.post('/usuario', [verificaToken, verificaAdminRole], (req, res) => {
 // PUT
 app.put('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     let id = req.params.id;
+    // _.pick() Sirve para elegir que propiedades se podran actualizar del modelo definido
     let body = _.pick(req.body, ['nombre','email','img','role','estado']);
     Usuario.findByIdAndUpdate(id, body, {new: true, runValidators: true}, (err, usuarioDB) => {
         if (err) {
